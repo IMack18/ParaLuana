@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Para Luana</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #ffe6ec;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      max-width: 400px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    h1 {
+      color: #d63384;
+      min-height: 100px;
+    }
+
+    button {
+      background-color: #ff69b4;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 30px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-left: 5px;
+      margin-right: 5px;
+    }
+
+    button:hover {
+      background-color: #e055a0;
+    }
+
+    .resposta {
+      color: green;
+      font-weight: bold;
+      margin-top: 20px;
+      white-space: pre-line;
+    }
+
+    .emoji {
+      font-size: 2.5rem;
+      animation: fadeIn 1s ease forwards;
+      opacity: 0;
+      margin-top: 15px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0px);
+      }
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      width: 80%;
+      font-size: 16px;
+      border-radius: 15px;
+      border: 1.5px solid #ff69b4;
+      margin-top: 20px;
+      outline: none;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1 id="pergunta">Vamos jogar um jogo de perguntas?</h1>
+  <div class="emoji" id="emoji">💬</div>
+  <button onclick="proximaEtapa()" id="botao">Começar</button>
+  <input type="text" id="inputResposta" style="display:none;" placeholder="Digite sua resposta aqui..."/>
+  <button onclick="enviarResposta()" id="botaoEnviar" style="display:none;">Enviar</button>
+  <button onclick="reiniciar()" id="botaoReiniciar" style="display:none;">Reiniciar</button>
+  <p class="resposta" id="resposta"></p>
+</div>
+
+<script>
+  const elogios = [
+    "Você sempre teve esse sorriso que desarma qualquer um? 😍",
+    "Sabia que seu olhar parece esconder um universo inteiro? 🌌",
+    "Como você consegue deixar o dia de alguém melhor só com uma presença? ☀️",
+    "Será que você sabe o efeito que tem quando ri desse jeito? 😄",
+    "Você tem noção do quanto é encantadora? ✨"
+  ];
+
+  const perguntasFinais = [
+    "Se eu te dissesse que seu charme me deixou sem palavras, você acreditaria? 😳",
+    "Se eu te pedisse um beijo agora, qual seria sua resposta com esse sorriso no rosto? 😊"
+  ];
+
+  const emojis = ["💖", "😍", "😊", "🌹", "✨", "💕", "😳", "😇"];
+
+  let etapa = 0;
+  const usados = [];
+  let ultimoEmoji = "";
+
+  function proximaEtapa() {
+    const perguntaEl = document.getElementById("pergunta");
+    const botao = document.getElementById("botao");
+    const respostaEl = document.getElementById("resposta");
+    const emojiEl = document.getElementById("emoji");
+    const inputResposta = document.getElementById("inputResposta");
+    const botaoEnviar = document.getElementById("botaoEnviar");
+
+    emojiEl.style.opacity = "0";
+
+    // Escolher emoji diferente do último
+    let novoEmoji;
+    do {
+      novoEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+    } while (novoEmoji === ultimoEmoji);
+    ultimoEmoji = novoEmoji;
+    emojiEl.textContent = novoEmoji;
+
+    inputResposta.style.display = "none";
+    botaoEnviar.style.display = "none";
+
+    if (etapa < 3) {
+      if (usados.length >= elogios.length) {
+        etapa = 3;
+        proximaEtapa();
+        return;
+      }
+
+      let novo;
+      do {
+        novo = elogios[Math.floor(Math.random() * elogios.length)];
+      } while (usados.includes(novo));
+      usados.push(novo);
+
+      perguntaEl.textContent = novo;
+      botao.textContent = "Próxima";
+      respostaEl.textContent = "";
+    } else if (etapa === 3) {
+      perguntaEl.textContent = perguntasFinais[0];
+      botao.textContent = "Próxima";
+      respostaEl.textContent = "";
+    } else if (etapa === 4) {
+      perguntaEl.textContent = perguntasFinais[1];
+      botao.style.display = "none";
+      inputResposta.style.display = "inline-block";
+      botaoEnviar.style.display = "inline-block";
+      respostaEl.textContent = "";
+      inputResposta.value = "";
+      inputResposta.focus();
+    }
+
+    emojiEl.style.animation = "none";
+    void emojiEl.offsetWidth;
+    emojiEl.style.animation = "fadeIn 1s ease forwards";
+
+    etapa++;
+  }
+
+  function enviarResposta() {
+    const respostaEl = document.getElementById("resposta");
+    const inputResposta = document.getElementById("inputResposta");
+    const botaoEnviar = document.getElementById("botaoEnviar");
+    const botaoReiniciar = document.getElementById("botaoReiniciar");
+    const emojiEl = document.getElementById("emoji");
+
+    const respostaUsuario = inputResposta.value.trim();
+
+    if (respostaUsuario === "") {
+      alert("Por favor, digite sua resposta antes de enviar!");
+      inputResposta.focus();
+      return;
+    }
+
+    respostaEl.textContent = `Você respondeu: "${respostaUsuario}" 💭\n\nBom... adoraria ganhar um beijo seu! 😊💞`;
+    inputResposta.style.display = "none";
+    botaoEnviar.style.display = "none";
+    botaoReiniciar.style.display = "inline-block";
+    emojiEl.textContent = "🥰";
+  }
+
+  function reiniciar() {
+    etapa = 0;
+    usados.length = 0;
+    ultimoEmoji = "";
+    document.getElementById("pergunta").textContent = "Vamos jogar um jogo de perguntas?";
+    document.getElementById("resposta").textContent = "";
+    document.getElementById("emoji").textContent = "💬";
+    document.getElementById("botao").textContent = "Começar";
+    document.getElementById("botao").style.display = "inline-block";
+    document.getElementById("botaoReiniciar").style.display = "none";
+    document.getElementById("inputResposta").style.display = "none";
+    document.getElementById("botaoEnviar").style.display = "none";
+  }
+</script>
+
+</body>
+</html>
+
